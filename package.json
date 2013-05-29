@@ -1,0 +1,20 @@
+{
+  "name": "nodejs-nix",
+  "version": "0.0.0",
+  "description": "Basic node.js application and dev environment with Nix",
+  "main": "app/server.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/zefhemel/nodejs-nix.git"
+  },
+  "author": {
+    "name": "Zef Hemel",
+    "email": "zef@zef.me"
+  },
+  "dependencies": {
+    "request": "2"
+  },
+  "bugs": {
+    "url": "https://github.com/zefhemel/nodejs-nix/issues"
+  }
+}
