@@ -16,6 +16,7 @@ in rec {
     name = "application";
     src = ./app;
     buildInputs = [ node ];
+    PORT = "8888";
     installPhase = ''
       mkdir -p $out
       cp -r * $out/
