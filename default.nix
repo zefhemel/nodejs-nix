@@ -1,25 +1,20 @@
 let
    pkgs = import <nixpkgs> {};
-   stdenv = pkgs.stdenv;
-in rec {
-  node = stdenv.mkDerivation rec {
-    version = "0.10.7";
-    name = "nodejs-${version}";
-    src = pkgs.fetchurl {
-      url = http://nodejs.org/dist/v0.10.7/node-v0.10.7.tar.gz;
-      sha256 = "1q15siga6b3rxgrmy42310cdya1zcc2dpsrchidzl396yl8x5l92";
-    };
-    preConfigure = stdenv.lib.optionalString stdenv.isDarwin ''export PATH=/usr/bin:/usr/sbin:$PATH'';
-    buildInputs = [ pkgs.python ] ++ stdenv.lib.optional stdenv.isLinux pkgs.utillinux;
-  };
-  app = stdenv.mkDerivation {
+
+   inherit (pkgs.nodePackages) importGeneratedPackages buildNodePackage;
+
+   deps = importGeneratedPackages (import ./node-packages-generated.nix) {} deps;
+in {
+  app = buildNodePackage {
     name = "application";
-    src = ./app;
-    buildInputs = [ node ];
+
+    src = { name = "application"; outPath = builtins.filterSource (name: type:
+      baseNameOf name != ".git" &&
+      baseNameOf name != "node_modules"
+    ) ./.; };
+
+    deps = [ deps.request ];
+
     PORT = "8888";
-    installPhase = ''
-      mkdir -p $out
-      cp -r * $out/
-    '';
   };
 }

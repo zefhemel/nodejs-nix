@@ -11,6 +11,9 @@
     "name": "Zef Hemel",
     "email": "zef@zef.me"
   },
+  "dependencies": {
+    "request": "2"
+  },
   "bugs": {
     "url": "https://github.com/zefhemel/nodejs-nix/issues"
   }
