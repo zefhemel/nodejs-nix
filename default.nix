@@ -1,8 +1,8 @@
+{ pkgs ? import <nixpkgs> {} }:
 let
-   pkgs = import <nixpkgs> {};
    stdenv = pkgs.stdenv;
 in rec {
-  node = stdenv.mkDerivation rec {
+  nodejs = stdenv.mkDerivation rec {
     version = "0.10.7";
     name = "nodejs-${version}";
     src = pkgs.fetchurl {
@@ -15,7 +15,7 @@ in rec {
   app = stdenv.mkDerivation {
     name = "application";
     src = ./app;
-    buildInputs = [ node ];
+    buildInputs = [ nodejs ];
     PORT = "8888";
     installPhase = ''
       mkdir -p $out
