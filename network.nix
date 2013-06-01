@@ -36,7 +36,7 @@
         description = "Hello world application";
         # Start the service after the network is available
         after = [ "network.target" ];
-        #wantedBy = [ "multi-user.target" ];
+        wantedBy = [ "multi-user.target" ];
         # We're going to run it on port 8080 in production
         environment = { PORT = "8080"; };
         serviceConfig = {
