@@ -1,16 +1,26 @@
 {
+  # Name of our deployment
   network.description = "HelloWorld";
 
+  # It consists of a single server named 'helloserver'
   helloserver = 
+    # Every server gets passed a few arguments, including a reference
+    # to nixpkgs (pkgs)
     { config, pkgs, ... }:
     let
-      packages = import ./default.nix { inherit pkgs; };
+      # We import our custom packages from ./default passing pkgs as argument
+      packages = import ./default.nix { pkgs = pkgs; };
+      # This is the nodejs version specified in default.nix
       nodejs   = packages.nodejs;
+      # And this is the application we'd like to deploy
       app      = packages.app;
     in
     {
-      # Let's enable the firewall so that we can forward port 80 to 8080
+      # We'll be running our application on port 8080, because a regular
+      # user cannot bind to port 80
+      # Then, using some iptables magic we'll forward traffic designated to port 80 to 8080
       networking.firewall.enable = true;
+      # We will open up port 22 (SSH) as well otherwise we're locking ourselves out
       networking.firewall.allowedTCPPorts = [ 80 8080 22 ];
       networking.firewall.allowPing = true;
 
@@ -19,24 +29,28 @@
         iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
       '';
 
-      # The systemd service that runs our application and keeps it running
+      # To run our node.js program we're going to use a systemd service
+      # We can configure the service to automatically start on boot and to restart
+      # the process in case it crashes
       systemd.services.helloserver = {
         description = "Hello world application";
+        # Start the service after the network is available
         after = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
+        #wantedBy = [ "multi-user.target" ];
+        # We're going to run it on port 8080 in production
         environment = { PORT = "8080"; };
         serviceConfig = {
+          # The actual command to run
           ExecStart = "${nodejs}/bin/node ${app}/server.js";
+          # For security reasons we'll run this process as a special 'nodejs' user
           User = "nodejs";
-          Group = "nodejs";
           Restart = "always";
         };
       };
 
+      # And lastly we ensure the user we run our project as is created
       users.extraUsers = {
-        nodejs = { group = "nodejs"; };
+        nodejs = { };
       };
-
-      users.extraGroups = { nodejs = {}; };
     };
 }
